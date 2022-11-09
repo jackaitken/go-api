@@ -2,13 +2,15 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/jackaitken/go-api/pkg/routes"
+	"github.com/jackaitken/go-api/routes"
 )
 
 func main() {
 	router := gin.Default()
 
 	router.GET("/todos", routes.Home)
+
+	router.GET("/todolist/:id", routes.TodoList)
 
 	router.GET("/todo/:id", routes.GetTodo)
 
