@@ -1,14 +1,20 @@
 package routes
 
 import (
+	"github.com/jackaitken/go-api/helpers"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 func Home(c *gin.Context) {
+	todoLists, err := helpers.LoadJson()
+
+	if err != nil {
+		panic(err)
+	}
 	c.JSON(http.StatusOK, gin.H{
-		"message": "All todos",
+		"lists": todoLists,
 	})
 }
 

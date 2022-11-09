@@ -1,0 +1,40 @@
+[
+  {
+    "id": 1,
+    "listName": "Sample Todo List",
+    "todos": [
+      {
+        "id": 1,
+        "title": "Work on Go API",
+        "status": "In Progress",
+        "priority": "Medium",
+        "dueDate": "December 31, 2022",
+        "notes": ""
+      },
+      {
+        "id": 2,
+        "title": "Bring Arlo to the park",
+        "status": "Incomplete",
+        "priority": "High",
+        "dueDate": "November, 9 2022",
+        "notes": "He'll be mad if I don't"
+      },
+      {
+        "id": 3,
+        "title": "Go to gym",
+        "status": "Incomplete",
+        "priority": "Medium",
+        "dueDate": "November, 9 2022",
+        "notes": ""
+      },
+      {
+        "id": 4,
+        "title": "Go to gym",
+        "status": "Incomplete",
+        "priority": "Medium",
+        "dueDate": "November, 9 2022",
+        "notes": ""
+      }
+    ]
+  }
+]
