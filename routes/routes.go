@@ -39,6 +39,7 @@ func TodoList(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{
 				list.ListName: list.Todos,
 			})
+			return
 		}
 	}
 
@@ -47,17 +48,37 @@ func TodoList(c *gin.Context) {
 }
 
 func GetTodo(c *gin.Context) {
-	// todoId := c.Param("id")
-	//
-	// todoLists, err := helpers.LoadJson()
-	//
-	// if err != nil {
-	// 	panic(err)
-	// }
+	todoLists, err := helpers.LoadJson()
 
-	c.JSON(http.StatusOK, gin.H{
-		"message": "One todo",
-	})
+	if err != nil {
+		panic(err)
+	}
+
+	requestedTodoId, err := strconv.Atoi(c.Param("id"))
+
+	for _, list := range todoLists {
+		for _, todo := range list.Todos {
+			if todo.Id == requestedTodoId {
+				c.JSON(http.StatusOK, gin.H{
+					"title":    todo.Title,
+					"status":   todo.Status,
+					"priority": todo.Priority,
+					"dueDate":  todo.DueDate,
+					"notes":    todo.Notes,
+				})
+				return
+			}
+		}
+	}
+
+	c.String(http.StatusNotFound,
+		"No todo with id: '%d' was found", requestedTodoId)
+
+	/*
+		For the time being, the todo lists are represented in JSON
+		so searching for a todo is not very scalable. This will change
+		when we have a database
+	*/
 }
 
 func EditTodo(c *gin.Context) {
@@ -72,8 +93,14 @@ func DeleteTodo(c *gin.Context) {
 	})
 }
 
-func NewTodo(c *gin.Context) {
+func NewTodoList(c *gin.Context) {
 	c.JSON(http.StatusNoContent, gin.H{
 		"message": "Todo created",
 	})
+
+	/*
+		To create a new todolist, we should take a request body
+		We need to do some error checking that we've received everything
+		that we need to nothing that we don't.
+	*/
 }
