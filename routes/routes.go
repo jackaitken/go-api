@@ -1,16 +1,15 @@
 package routes
 
 import (
+	"github.com/jackaitken/go-api/lib"
 	"net/http"
 	"strconv"
-
-	"github.com/jackaitken/go-api/helpers"
 
 	"github.com/gin-gonic/gin"
 )
 
 func Home(c *gin.Context) {
-	todoLists, err := helpers.LoadJson()
+	todoLists, err := lib.LoadJson()
 
 	if err != nil {
 		panic(err)
@@ -22,7 +21,7 @@ func Home(c *gin.Context) {
 }
 
 func TodoList(c *gin.Context) {
-	todoLists, err := helpers.LoadJson()
+	todoLists, err := lib.LoadJson()
 
 	if err != nil {
 		panic(err)
@@ -48,7 +47,7 @@ func TodoList(c *gin.Context) {
 }
 
 func GetTodo(c *gin.Context) {
-	todoLists, err := helpers.LoadJson()
+	todoLists, err := lib.LoadJson()
 
 	if err != nil {
 		panic(err)
@@ -73,12 +72,6 @@ func GetTodo(c *gin.Context) {
 
 	c.String(http.StatusNotFound,
 		"No todo with id: '%d' was found", requestedTodoId)
-
-	/*
-		For the time being, the todo lists are represented in JSON
-		so searching for a todo is not very scalable. This will change
-		when we have a database
-	*/
 }
 
 func EditTodo(c *gin.Context) {
@@ -94,8 +87,25 @@ func DeleteTodo(c *gin.Context) {
 }
 
 func NewTodoList(c *gin.Context) {
-	c.JSON(http.StatusNoContent, gin.H{
-		"message": "Todo created",
+	todoLists, err := lib.LoadJson()
+
+	if err != nil {
+		panic(err)
+	}
+
+	newTodoList := lib.TodoList{}
+
+	if err = c.BindJSON(&newTodoList); err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	if err = lib.AppendTodoList(newTodoList, todoLists); err != nil {
+		panic(err)
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"message": "New list created",
 	})
 
 	/*

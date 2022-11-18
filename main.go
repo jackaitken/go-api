@@ -18,7 +18,7 @@ func main() {
 
 	router.DELETE("/todo/:id", routes.DeleteTodo)
 
-	router.POST("todo/:todolist", routes.NewTodoList)
+	router.POST("/todolist", routes.NewTodoList)
 
 	err := router.Run(":8080")
 
