@@ -2,6 +2,8 @@ package lib
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"os"
 )
 
@@ -39,6 +41,23 @@ func AppendTodoList(newList TodoList, existingLists []TodoList) error {
 	}
 
 	return nil
+}
+
+func GetTodo(id int) (Todo, error) {
+	todoLists, err := LoadJson()
+
+	if err != nil {
+		panic(err)
+	}
+
+	for _, list := range todoLists {
+		for _, todo := range list.Todos {
+			if todo.Id == id {
+				return todo, nil
+			}
+		}
+	}
+	return Todo{}, errors.New(fmt.Sprintf("No todo with that id was found"))
 }
 
 /*

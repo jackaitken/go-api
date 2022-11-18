@@ -12,7 +12,7 @@ func main() {
 
 	router.GET("/todolist/:id", routes.TodoList)
 
-	router.GET("/todo/:id", routes.GetTodo)
+	router.GET("/todo/:id", routes.HandleGetTodo)
 
 	router.PUT("/todo/:id", routes.EditTodo)
 

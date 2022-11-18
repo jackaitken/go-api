@@ -46,32 +46,28 @@ func TodoList(c *gin.Context) {
 		"No list with id: '%d' was found", requestedTodoListId)
 }
 
-func GetTodo(c *gin.Context) {
-	todoLists, err := lib.LoadJson()
+func HandleGetTodo(c *gin.Context) {
+	requestedTodoId, err := strconv.Atoi(c.Param("id"))
 
 	if err != nil {
 		panic(err)
 	}
 
-	requestedTodoId, err := strconv.Atoi(c.Param("id"))
+	requestedTodo, err := lib.GetTodo(requestedTodoId)
 
-	for _, list := range todoLists {
-		for _, todo := range list.Todos {
-			if todo.Id == requestedTodoId {
-				c.JSON(http.StatusOK, gin.H{
-					"title":    todo.Title,
-					"status":   todo.Status,
-					"priority": todo.Priority,
-					"dueDate":  todo.DueDate,
-					"notes":    todo.Notes,
-				})
-				return
-			}
-		}
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": err,
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"title":    requestedTodo.Title,
+			"status":   requestedTodo.Status,
+			"priority": requestedTodo.Priority,
+			"dueDate":  requestedTodo.DueDate,
+			"notes":    requestedTodo.Notes,
+		})
 	}
-
-	c.String(http.StatusNotFound,
-		"No todo with id: '%d' was found", requestedTodoId)
 }
 
 func EditTodo(c *gin.Context) {
