@@ -8,7 +8,7 @@ import (
 func main() {
 	router := gin.Default()
 
-	router.GET("/todos", routes.Home)
+	router.GET("/todolists", routes.Home)
 
 	router.GET("/todolist/:id", routes.TodoList)
 
@@ -19,6 +19,8 @@ func main() {
 	router.DELETE("/todo/:id", routes.DeleteTodo)
 
 	router.POST("/todolist", routes.NewTodoList)
+
+	router.POST("/todolist/:id/new-todo", routes.NewTodo)
 
 	err := router.Run(":8080")
 
