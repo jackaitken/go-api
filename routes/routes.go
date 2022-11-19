@@ -9,7 +9,7 @@ import (
 )
 
 func Home(c *gin.Context) {
-	todoLists, err := lib.LoadJson()
+	todoLists, err := lib.LoadJSON()
 
 	if err != nil {
 		panic(err)
@@ -21,29 +21,23 @@ func Home(c *gin.Context) {
 }
 
 func TodoList(c *gin.Context) {
-	todoLists, err := lib.LoadJson()
-
-	if err != nil {
-		panic(err)
-	}
-
 	requestedTodoListId, err := strconv.Atoi(c.Param("id"))
 
 	if err != nil {
 		panic(err)
 	}
 
-	for _, list := range todoLists {
-		if list.Id == requestedTodoListId {
-			c.JSON(http.StatusOK, gin.H{
-				list.ListName: list.Todos,
-			})
-			return
-		}
-	}
+	requestedTodoList, err := lib.GetTodoList(requestedTodoListId)
 
-	c.String(http.StatusNotFound,
-		"No list with id: '%d' was found", requestedTodoListId)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": err,
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			requestedTodoList.ListName: requestedTodoList.Todos,
+		})
+	}
 }
 
 func HandleGetTodo(c *gin.Context) {
@@ -83,30 +77,45 @@ func DeleteTodo(c *gin.Context) {
 }
 
 func NewTodoList(c *gin.Context) {
-	todoLists, err := lib.LoadJson()
-
-	if err != nil {
-		panic(err)
-	}
-
 	newTodoList := lib.TodoList{}
 
-	if err = c.BindJSON(&newTodoList); err != nil {
+	if err := c.BindJSON(&newTodoList); err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
-	if err = lib.AppendTodoList(newTodoList, todoLists); err != nil {
+	if err := lib.AppendTodoList(newTodoList); err != nil {
 		panic(err)
 	}
 
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "New list created",
 	})
+}
 
-	/*
-		To create a new todolist, we should take a request body
-		We need to do some error checking that we've received everything
-		that we need to nothing that we don't.
-	*/
+func NewTodo(c *gin.Context) {
+	todoListId, err := strconv.Atoi(c.Param("id"))
+
+	if err != nil {
+		panic(err)
+	}
+
+	newTodo := lib.Todo{}
+
+	if err := c.BindJSON(&newTodo); err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	err = lib.AppendTodo(newTodo, todoListId)
+
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": err,
+		})
+	} else {
+		c.JSON(http.StatusCreated, gin.H{
+			"message": "New todo was added",
+		})
+	}
 }
