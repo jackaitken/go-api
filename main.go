@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/jackaitken/go-api/routes"
+	"log"
 )
 
 func main() {
@@ -25,7 +26,7 @@ func main() {
 	err := router.Run(":8080")
 
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 }
 

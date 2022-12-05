@@ -1,9 +1,12 @@
 package routes
 
 import (
-	"github.com/jackaitken/go-api/lib"
+	"fmt"
+	"log"
 	"net/http"
 	"strconv"
+
+	"github.com/jackaitken/go-api/lib"
 
 	"github.com/gin-gonic/gin"
 )
@@ -12,7 +15,7 @@ func Home(c *gin.Context) {
 	todoLists, err := lib.LoadJSON()
 
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -24,7 +27,7 @@ func TodoList(c *gin.Context) {
 	requestedTodoListId, err := strconv.Atoi(c.Param("id"))
 
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	requestedTodoList, err := lib.GetTodoList(requestedTodoListId)
@@ -44,10 +47,11 @@ func HandleGetTodo(c *gin.Context) {
 	requestedTodoId, err := strconv.Atoi(c.Param("id"))
 
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	requestedTodo, err := lib.GetTodo(requestedTodoId)
+	fmt.Println(requestedTodo)
 
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
@@ -55,6 +59,7 @@ func HandleGetTodo(c *gin.Context) {
 		})
 	} else {
 		c.JSON(http.StatusOK, gin.H{
+			"id":       requestedTodo.Id,
 			"title":    requestedTodo.Title,
 			"status":   requestedTodo.Status,
 			"priority": requestedTodo.Priority,
@@ -65,9 +70,47 @@ func HandleGetTodo(c *gin.Context) {
 }
 
 func EditTodo(c *gin.Context) {
-	c.JSON(http.StatusNoContent, gin.H{
-		"message": "Todo edited",
-	})
+	requestedTodoId, err := strconv.Atoi(c.Param("id"))
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	todoTitle := lib.Todo{}
+
+	if err := c.BindJSON(&todoTitle); err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	if err := lib.EditTodo(requestedTodoId, todoTitle); err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": err,
+		})
+	} else {
+		c.JSON(http.StatusCreated, gin.H{
+			"message": "todo title was edited",
+		})
+	}
+	/*
+		To edit a todo:
+		1. Get the new todo wording (bind the body)
+		2. Get the todo by id
+		3. Save the new todo title
+
+		We have:
+		1. Get the todo id
+		2. Save the new todo title from the request body
+
+		Need to:
+		1. Replace that todo in the right todolist
+
+		We can probably just find the todo, and replace the
+		todo title for right now.
+
+		For the future: I need to be able to edit the other
+		properties. For right now we're just going to edit the title
+	*/
 }
 
 func DeleteTodo(c *gin.Context) {
@@ -85,7 +128,7 @@ func NewTodoList(c *gin.Context) {
 	}
 
 	if err := lib.AppendTodoList(newTodoList); err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	c.JSON(http.StatusCreated, gin.H{
@@ -97,7 +140,7 @@ func NewTodo(c *gin.Context) {
 	todoListId, err := strconv.Atoi(c.Param("id"))
 
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	newTodo := lib.Todo{}

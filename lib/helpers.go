@@ -3,7 +3,7 @@ package lib
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
+	"log"
 	"os"
 )
 
@@ -63,7 +63,7 @@ func AppendTodo(todo Todo, todoListId int) error {
 	existingLists, err := LoadJSON()
 
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	for i := range existingLists {
@@ -72,8 +72,9 @@ func AppendTodo(todo Todo, todoListId int) error {
 			list.Todos = append(list.Todos, todo)
 
 			if err := SaveJSON(existingLists); err != nil {
-				panic(err)
+				log.Fatal(err)
 			}
+
 			return nil
 		}
 	}
@@ -85,7 +86,7 @@ func GetTodoList(id int) (TodoList, error) {
 	todoLists, err := LoadJSON()
 
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	for _, list := range todoLists {
@@ -93,27 +94,37 @@ func GetTodoList(id int) (TodoList, error) {
 			return list, nil
 		}
 	}
-	return TodoList{}, errors.New("Could not find list with that id")
+	return TodoList{}, errors.New("could not find list with that id")
 }
 
-func GetTodo(id int) (Todo, error) {
+func GetTodo(id int) (*Todo, error) {
 	todoLists, err := LoadJSON()
 
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	for _, list := range todoLists {
 		for _, todo := range list.Todos {
 			if todo.Id == id {
-				return todo, nil
+				todoAddress := &todo
+				return todoAddress, nil
 			}
 		}
 	}
-	return Todo{}, errors.New(fmt.Sprintf("No todo with that id was found"))
+	return &Todo{}, errors.New("no todo with that id was found")
 }
 
-/*
-We need a function to create a new TodoList
+func EditTodo(id int, todoTitle Todo) error {
+	// Currently can only edit the todo title
 
-*/
+	todo, err := GetTodo(id)
+
+	if err != nil {
+		return errors.New("no todo with that id was found")
+	}
+
+	todo.Title = todoTitle.Title
+
+	return nil
+}
